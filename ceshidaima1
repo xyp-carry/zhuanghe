@@ -1,0 +1,69 @@
+#include "pch.h"
+#include "CppUnitTest.h"
+
+using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+
+namespace UnitTest1
+{
+    TEST_CLASS(UnitTest1)
+    {
+    public:
+
+        TEST_METHOD(TestMethod1)
+        {
+			int i,n,a[7]={1,2,3,4,5,6,7};
+			int sum=0,max=0;
+			for(i=0;i<7;i++)
+	    	{
+			sum+=a[i];
+			if(sum>max)
+			{
+				max=sum;
+			}
+			if(sum<0)
+			{
+				sum=0;
+			}
+		 }
+            int real = 28;
+            Assert::AreEqual(max, real);
+        }
+        TEST_METHOD(TestMethod2)
+        {
+			int i,n,a[6]={-7,10,-5,-12,-9,1};
+			int sum=0,max=0;
+			for(i=0;i<6;i++)
+	    	{
+			sum+=a[i];
+			if(sum>max)
+			{
+				max=sum;
+			}
+			if(sum<0)
+			{
+				sum=0;
+			}
+		      
+            int real = 10;
+            Assert::AreEqual(max, real);
+        }
+        TEST_METHOD(TestMethod3)
+        {
+            int i,n,sum=0,max=0;
+			int a[5]={-5,-9,-12,-7,-3};
+			for(i=0;i<6;i++)
+	    	{
+			sum+=a[i];
+			if(sum>max)
+			{
+				max=sum;
+			}
+			if(sum<0)
+			{
+				sum=0;
+			}
+            int real = 0;
+            Assert::AreEqual(max, real);
+        }
+    };
+}
