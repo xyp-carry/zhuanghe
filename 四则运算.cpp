@@ -1,228 +1,132 @@
-#include <iostream>
+#include<iostream>
+#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <string>
-#include <vector>
-#include <iomanip>
-#include <sstream>
-#include <fstream>
-
+#include <string.h>
+#include <windows.h>
+#include <windef.h>
+#include <math.h>
+#include<fstream>
+#include<iomanip>
 using namespace std;
 
-static std::string roundAny(float r, int precision) 
-{
-	std::stringstream buffer;
-	buffer << std::fixed << std::setprecision(precision) << r;
-	return buffer.str();
-}
+FILE *in;
 
-class  Calculation
-{
-public:
-	int quantity;  //ÌâÄ¿ÊıÁ¿
-	int maximum;   //ÔËËãÊı×î´óÖµ
-	int elem_len;  //ÔËËãÏîµÄ¸öÊı
-	bool brackets; //À¨ºÅ
-	bool decimal;  //Ğ¡Êı
+double nums[100];
+char str[100], tt;
+int n, Max, long1, q = 1;
+int challenge;
+bool decimal,         ///æ˜¯å¦è¾“å…¥å°æ•°
+brackets;       ///æ˜¯å¦è¾“å…¥æ‹¬å·
+int site = 0,         ///siteä¸º + - * /çš„ä½ç½®
+site1 = -1,        ///site1,siet2ä¸ºæ‹¬å·ä½ç½®
+site2 = -1;
+ofstream ofile;
 
-	vector <string> opt;
-	vector <string> expression;
-	vector <string> answer;
-public:
-	void Create();
-	void SetQuantity(int q);
-	void SetMaximum(int m);
-	void SetBrackets(bool b);
-	void SetDecimal(bool d);
-	void SetElem_len(int len);
-	void AddOpt(string op) {
-		this->opt.push_back(op);
-	}
-	void SaveFile();
-	Calculation(int q, int m, bool b, bool d);
-};
 
-Calculation::Calculation(int q, int m, bool b, bool d)
+void randomNumber()                                   /*ç”Ÿæˆæ•°å­—*/
 {
-	this->quantity = q;
-	this->maximum = m;
-	this->brackets = b;
-	this->decimal = d;
-	this->elem_len = 4;	
-}
-
-void Calculation::SetElem_len(int len)
-{
-	this->elem_len = len;
-}
-
-void Calculation::SetQuantity(int q)
-{
-	this->quantity = q;
-}
-
-void Calculation::SetMaximum(int m)
-{
-	this->maximum = m;
-}
-
-void Calculation::SetBrackets(bool b)
-{
-	this->brackets = b;
-}
-
-void Calculation::SetDecimal(bool d)
-{
-	this->decimal = d;
-}
-
-void Calculation::SaveFile() 
-{
-	ofstream outFile("ÌâÄ¿ÎÄ¼ş.txt", ios::out | ios::binary);
-	if (!outFile)
+	long1 = rand() % challenge + 2;
+	for (int i = 0; i < long1; i++)
 	{
-		cout << "Faile!" << endl;
-		return;
-	}
-	for (int i = 0; i < (this->expression.size()); i++) 
-	{
-		outFile << this->expression[i] << endl;
-	}
-
-	outFile.close();
-	return;
-}
-void Calculation::Create() 
-{
-	srand((unsigned int)(time(NULL)));
-	for (int x = 0; x < quantity; x++) 
-	{
-		string tmp;
-		int left = rand() % (elem_len - 1);   // À¨ºÅ×óÎ»ÖÃ
-		int right = rand() % (elem_len - left - 1) + left + 1; //À¨ºÅÓÒÎ»ÖÃ
-		while (left == 0 && right == elem_len - 1) 
+		if (decimal)
 		{
-			left = rand() % (elem_len - 1);   // À¨ºÅ×óÎ»ÖÃ
-			right = rand() % (elem_len - left - 1) + left + 1; //À¨ºÅÓÒÎ»ÖÃ
+			nums[i] = (rand() % Max) + (rand() % 100 * 0.01);
 		}
-		for (int i = 0; i < elem_len; i++) 
+		else
 		{
-			string temp = "";
-			float number = rand() % maximum + 1 + (float)(rand() % maximum) / maximum;
-			if (this->decimal)
-			{
-				temp = roundAny(number, 2);
-			}
-			else 
-			{
-				temp = roundAny(number, 0);
-			}
-			if (brackets)
-			{
-				if (i == left) 
-				{
-					temp = "(" + temp + " ";
-				}
-				else if (i == right)
-				{
-					temp = temp + ")";
-				}
-				else 
-				{
-					temp = temp + " ";
-				}
-			}
-			else 
-			{
-				temp = temp + " ";
-			}
-			if (temp.size() == 2)
-			{
-				temp = "  " + temp;
-			}
-			else if (temp.size() == 3)
-			{
-				temp = " " + temp;
-			}
-			tmp += temp;
-			if (i < elem_len - 1)
-				tmp += opt[rand() % (opt.size())] + " ";
-			else
-				tmp += " = ";
+			nums[i] = (rand() % Max) + 1;
 		}
-		expression.push_back(tmp);
 	}
 }
 
-
-int main()
+void randomBrackets()                              /*æ‹¬å·*/
 {
-	int quantity;
-	int maximum;
-	char temp;
-	bool brackets = false;
-	bool decimal = false;
-	int elem_len;
-	cout << "ÇëÊäÈëÌâÄ¿ÊıÁ¿: "; cin >> quantity;
-	cout << "ÇëÊäÈëÔËËãÊı×î´óÖµ: "; cin >> maximum;
-	cout << "ÇëÊäÈëÔËËãÏîÊıÁ¿: "; cin >> elem_len;
-	cout << "ÊÇ·ñ´øÀ¨ºÅ(Y or N): "; cin >> temp;
-	if (temp == 'Y')
+	site1 = -1;
+	site2 = -1;
+	if (brackets)
 	{
-		brackets = true;
-	}
-	cout << "ÊÇ·ñÓĞĞ¡Êı(Y or N): "; cin >> temp;
-	if (temp == 'Y')
-	{
-		decimal = true;
-	} 
-	cout << endl;
-	Calculation clac(quantity, maximum, brackets, decimal);
-	temp = ' ';
-	cout << "ÇëÊäÈëÔËËã·û: "; cin >> temp;
-	while (cin.get() != '\n') 
-	{
-		if(temp == '+') 
+		while (1)
 		{
-			clac.AddOpt("£«");  //"£«", "£­", "¡Á", "¡Â"
+			site1 = rand() % long1;
+			site2 = rand() % long1;
+			if (abs(site1 - site2))
+			{
+				site1 = min(site1, site2);
+				site2 = max(site1, site2);
+				break;
+			}
 		}
-		if(temp == '-')
+		if (long1 == 2)
 		{
-			clac.AddOpt("£­");
+			site1 = -1;
+			site2 = -1;
 		}
-		if(temp == '*') 
+	}
+}
+
+void priduction()                                  /*ç”Ÿæˆ*/
+{
+	errno_t err;
+	err = fopen_s(&in, "å››åˆ™è¿ç®—.txt", "a");
+	for (int i = 0; i < long1; i++)
+	{
+		
+		int k = rand() % site;                  ///str[i]ä¸ºéšæœºçš„ç¬¦å·
+		if (i == site1 && site1 != site2)
 		{
-			clac.AddOpt("¡Á");
+			cout << "(" << " ";
+			tt = '(';
+			fprintf(in, "%s", &tt);
 		}
-		if(temp == '/')
+		cout << nums[i] << " ";
+		fprintf(in, "%.2lf", nums[i]);
+		if (i == site2 && site1 != site2)
 		{
-			clac.AddOpt("¡Â");
+			cout << ")" << " ";
+			tt = ')';
+			fprintf(in, "%s", &tt);
 		}
-		cin >> temp;
+		if (i != long1 - 1)
+		{
+			cout << str[k] << " ";
+			fprintf(in, "%c", str[k]);
+		}
 	}
-	if (temp == '+') 
+	fprintf(in, "\n");
+	fclose(in);
+}
+
+
+
+int main() {
+	printf("è¯·è¾“å…¥é¢˜ç›®æ•°é‡ä»¥åŠé¢˜ç›®ä¸­å‡ºç°çš„æœ€å¤§æ•°:");
+	scanf_s("%d %d", &n,&Max);
+	printf("è¯·è¾“å…¥æƒ³è¦çš„è¿ç®—ç¬¦ï¼ˆ+-*/ï¼‰");
+	getchar();
+	gets_s(str);
+	printf("æ˜¯å¦éœ€è¦å°æ•°?");
+	scanf_s("%d", &decimal);
+	printf("æ˜¯å¦éœ€è¦æ‹¬å·?");
+	scanf_s("%d", &brackets);
+	printf("è¯·è¾“å…¥éš¾åº¦çº§åˆ«");
+	scanf_s("%d", &challenge);
+	for (int i = 0; i < strlen(str); i++)
 	{
-		clac.AddOpt("£«");  //"£«", "£­", "¡Á", "¡Â"
+		if (str[i] == '+' || str[i] == '-' || str[i] == '*' || str[i] == '/')
+		{
+			str[site++] = str[i];                       ///str å­˜å››åˆ™è¿ç®—ä¸­å°†å‡ºç°çš„ç¬¦å·
+		}
 	}
-	if (temp == '-') 
+
+	while (n--)
 	{
-		clac.AddOpt("£­");
-	}
-	if (temp == '*')
-	{
-		clac.AddOpt("¡Á");
-	}
-	if (temp == '/')
-	{
-		clac.AddOpt("¡Â");
-	}
-	clac.SetElem_len(elem_len);
-	clac.Create();
-	clac.SaveFile();
-	for (int i = 0; i < clac.expression.size(); i++)
-	{
-		cout << clac.expression[i] << endl;
+		randomNumber();
+		randomBrackets();
+		priduction();
+		cout << endl;
 	}
 	system("pause");
 	return 0;
+}
 }
